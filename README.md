@@ -1,5 +1,7 @@
 Being
 
+Video: https://youtu.be/2nYjyoyUSw8
+
 FractalBeing is an innovative, real-time audiovisual AI system that captures live audio and video input, processes them through a sophisticated neural network architecture, and generates dynamic audiovisual feedback. This system not only interacts with its environment but also visualizes its internal neural activities, offering a glimpse into the intricate processes that drive its behavior.
 
 Table of Contents

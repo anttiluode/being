@@ -124,6 +124,18 @@ Technical Details
 
 Dependencies
 
+torch
+numpy
+opencv-python-headless
+pyaudio
+matplotlib
+tkinter
+pillow
+scipy
+dataclasses
+
+If anything is missing. Sorry. 
+
 FractalBeing relies on several Python libraries to function seamlessly:
 
 Core Libraries:

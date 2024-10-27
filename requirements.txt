@@ -1,0 +1,9 @@
+torch
+numpy
+opencv-python-headless
+pyaudio
+matplotlib
+pillow
+scipy
+dataclasses
+tkinter

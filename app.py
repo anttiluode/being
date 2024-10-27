@@ -635,7 +635,7 @@ class FractalBeing:
         
     def setup_av_capture(self):
         try:
-            self.video_capture = cv2.VideoCapture(2)  # Using default camera (0)
+            self.video_capture = cv2.VideoCapture(0)  # Change this if your webcam is not 0 
             if not self.video_capture.isOpened():
                 logging.error("Failed to open video capture device.")
                 raise ValueError("Could not open webcam. Please check the device index.")

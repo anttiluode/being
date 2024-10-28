@@ -84,7 +84,7 @@ class FractalDimensionAdapter(nn.Module):
                 nn.ReLU(),
                 nn.Linear(input_dim, output_dim),
                 nn.LayerNorm(output_dim)
-            ) for i in range(adaptation_levels)
+            ) for i in range(self.adaptation_levels)
         ])
         
         # Attention mechanism for scale weighting
@@ -212,7 +212,7 @@ class FractalDimensionAdapter(nn.Module):
         except Exception as e:
             logging.error(f"Error in FractalDimensionAdapter forward: {e}")
             return torch.zeros((1, self.output_dim))
-
+    
     def get_adaptation_stats(self) -> dict:
         """Get statistics about the adaptation process"""
         try:
@@ -225,7 +225,7 @@ class FractalDimensionAdapter(nn.Module):
         except Exception as e:
             logging.error(f"Error getting adaptation stats: {e}")
             return {}
-
+    
     def adapt_to_distribution(self, x: torch.Tensor):
         """Adapt to input distribution changes"""
         try:
@@ -486,7 +486,7 @@ class FractalBrain(nn.Module):
                 ).squeeze(1)
             
             return x
-            
+                
         except Exception as e:
             logging.error(f"Error in _reshape_input: {e}")
             return torch.zeros((1, self.feature_dim))
@@ -961,6 +961,7 @@ class FractalBeingApp:
             )
             if filepath:
                 self.being.save_state(filepath)
+                logging.info(f"State saved to {filepath}.")
                 messagebox.showinfo("Info", f"State saved to {filepath}.")
         except Exception as e:
             logging.error(f"Error saving state: {e}")
@@ -974,6 +975,7 @@ class FractalBeingApp:
             )
             if filepath:
                 self.being.load_state(filepath)
+                logging.info(f"State loaded from {filepath}.")
                 messagebox.showinfo("Info", f"State loaded from {filepath}.")
         except Exception as e:
             logging.error(f"Error loading state: {e}")
@@ -987,8 +989,10 @@ class FractalBeingApp:
                 if len(video_frame.shape) == 2:
                     video_frame = cv2.cvtColor(video_frame, cv2.COLOR_GRAY2RGB)
                 
-                overlay = self.create_visualization_overlay(video_frame)
-                output = cv2.addWeighted(video_frame, 0.7, overlay, 0.3, 0)
+                # Removed the overlay with green circles
+                # overlay = self.create_visualization_overlay(video_frame)
+                # output = cv2.addWeighted(video_frame, 0.7, overlay, 0.3, 0)
+                output = video_frame  # Directly use the video frame without overlay
                 
                 image = Image.fromarray(output)
                 image = image.resize((320, 240))  # Resize for better visibility
@@ -1009,6 +1013,8 @@ class FractalBeingApp:
         try:
             activities = []
             for layer in [self.being.brain.sensory, self.being.brain.processor, self.being.brain.generator]:
+                # Collect activation states from the current layer
+                activities.append(layer.activation_state)
                 for neuron in layer.child_neurons:
                     activities.append(neuron.activation_state)
             return activities
@@ -1019,10 +1025,20 @@ class FractalBeingApp:
     def update_plot_data(self, activities):
         """Update plot data asynchronously."""
         try:
+            if not activities:
+                logging.debug("No activities to plot.")
+                self.ax.clear()
+                self.ax.set_title("Neural Activity")
+                self.ax.set_xlabel("Neuron")
+                self.ax.set_ylabel("Activation")
+                self.canvas.draw()
+                return
+            
             self.ax.clear()
             self.ax.set_title("Neural Activity")
             self.ax.set_xlabel("Neuron")
             self.ax.set_ylabel("Activation")
+            self.ax.set_ylim(0, 1)  # Assuming activation_state is normalized between 0 and 1
             self.ax.bar(range(len(activities)), activities, color='blue')
             self.canvas.draw()
         except Exception as e:
@@ -1059,11 +1075,11 @@ class FractalBeingApp:
         except Exception as e:
             logging.error(f"Error creating visualization overlay: {e}")
             return np.zeros_like(frame, dtype=np.uint8)
-
+    
     def update_plot(self):
         # Placeholder for future enhancements or real-time updates
         self.root.after(1000, self.update_plot)
-
+    
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.being.stop()
